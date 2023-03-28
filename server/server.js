@@ -7,15 +7,11 @@ const hunt = require('./routes/hunt')
 const authors = require('./routes/authors')
 const places = require('./routes/places')
 const genres = require('./routes/genres')
-const users = require('./routes/authentication')
+const users = require('./routes/signup_login')
 var cookieParser = require('cookie-parser');
 
-
-const mysql_manager = require('./storage/mysql_manager')
-
-
-const uploader = require('./middleware/upload_image_middleware')
-
+const uploader = require('./middleware/upload_image_middleware');
+require('dotenv').config()
 
 const app = express()
 var bodyParser = require('body-parser')

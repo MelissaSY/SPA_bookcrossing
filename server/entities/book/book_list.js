@@ -1,6 +1,6 @@
 let Book = require("./book.js");
 const fs = require('fs');
-const storage = require("../../storage/mysql_manager");
+const storage = require("../../services/storage/mysql_manager");
 
 let books = [];
 

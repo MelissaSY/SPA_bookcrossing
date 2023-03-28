@@ -1,5 +1,5 @@
 const Genre = require('./genre');
-const storage = require('../../storage/mysql_manager')
+const storage = require("../../services/storage/mysql_manager");
 
 let genres = [];
 

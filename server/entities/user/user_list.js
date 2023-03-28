@@ -1,5 +1,5 @@
 const User = require('./user');
-const storage = require('../../services/storage/mysql_manager');
+const storage = require("../../services/storage/mysql_manager");
 
 let users = [];
 
@@ -19,6 +19,7 @@ const addUser = (login, password, email) => {
     let id = getNextId();
     let newUser = new User(id, login, password, email);
     users.push(newUser);
+    return newUser;
     // try {
     //     //storage.addUser(newUser);
     // } catch (err) {
