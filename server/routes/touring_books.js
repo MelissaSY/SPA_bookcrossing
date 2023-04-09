@@ -5,7 +5,7 @@ module.exports = function (options = {}) {
   const router = express.Router();
   router.get('/', verifyToken, (req, res) => {
     //req.user
-    res.json('touring books');
+    res.json({'payload':'touring books', 'user':req.user});
   });
   return router;
 };

@@ -1,52 +1,153 @@
 'use strict';
 
-const book_list = require('../entities/book/book_list');
+const {Book, BookAuthor, BookGenre} = require('../models/Book');
+const {Genre} = require('../models/Genre');
+const { Author, Pseudonym } = require('../models/Author');
 
-const addBook = (req, res) => {
-    book_list.addBook(
-        req.body.title,
-        req.body.genre,
-        req.body.isbn,
-        req.body.annotation,
-        req.body.filepath,
-        req.body.hasImage,
-        req.body.authors,
-    );
+const addBook = async (req, res) => {
+    await Book.sync();
+    await BookAuthor.sync();
+    await BookGenre.sync();
+    let book = await Book.create({
+        title: req.body.title,
+        isbn: req.body.isbn || null,
+        annotation: req.body.annotation,
+        coverPath: req.body.filepath,
+        hasCover: req.body.hasimage,
+    })
+    for(let genre of req.body.genre) {
+        await BookGenre.create({
+            BookId: book.id,
+            GenreId: parseInt(genre)
+        })
+    }
+    for(let author of req.body.authors) {
+        await BookAuthor.create({
+            BookId: book.id,
+            AuthorId: parseInt(author)
+        })
+    }
     res.json(req.body);
 };
 
 const getAllBooks = async (req, res) => {
     try {
-        book_list.getAllBooks()
-        .then((books) => {
-            res.json(books);
+        await Book.sync();
+        await BookAuthor.sync();
+        await BookGenre.sync();
+
+        await Book.findAll({
+            include: [{
+                model: Author,
+                through: {
+                    attributes: []
+                },
+                include: [{
+                    model: Pseudonym,
+                    attributes: ['pseudonym']
+
+                }]
+            }, {
+                model: Genre,
+                through: {
+                    attributes: []
+                }
+            }]
+        })
+        .then((resp)=> {
+            res.json(resp);
         })
     } catch (err) {
+        console.log(err);
         res.sendStatus(500);
     }
 };
 
-const deleteBook = (req, res) => {
+const deleteBook = async (req, res) => {
     try {
-        book_list.deleteBook(parseInt(req.params.id));
+        await Book.sync();
+        await BookAuthor.sync();
+        await BookGenre.sync();
+
+        await Book.destroy({
+            where: {
+                id: parseInt(req.params.id),
+            }
+        })
         res.json(req.body);
     } catch (err) {
         res.sendStatus(500);
     }
 };
 
-const updateBook = (req, res) => {
+const updateBook = async (req, res) => {
     try {
-        book_list.updateBook(parseInt(req.params.id), req.body);
+        await Book.update({
+            title: req.body.title,
+            isbn: req.body.isbn || null,
+            annotation: req.body.annotation,
+            coverPath: req.body.filepath,
+            hasCover: req.body.hasimage,
+        }, {
+            where: {
+                id: parseInt(req.params.id)
+            }
+        });
+
+        await BookAuthor.destroy({
+            where: {
+                BookId: parseInt(req.params.id)
+            }
+        })
+
+        await BookGenre.destroy({
+            where: {
+                BookId: parseInt(req.params.id)
+            }
+        })
+
+        for(let genre of req.body.genre) {
+            await BookGenre.create({
+                BookId: parseInt(req.params.id),
+                GenreId: parseInt(genre)
+            })
+        }
+        for(let author of req.body.authors) {
+            await BookAuthor.create({
+                BookId: parseInt(req.params.id),
+                AuthorId: parseInt(author)
+            })
+        }
         res.json(req.body);
     } catch(err) {
+        console.log(err);
         res.sendStatus(500);
     }
 }
 
-const getBook = (req, res) => {
+const getBook = async (req, res) => {
     try {
-        let book = book_list.searchBook('id', parseInt(req.params.id));
+        let book = await Book.findOne({
+            where: {
+                id: parseInt(req.params.id)
+            },
+            include: [{
+                model: Author,
+                through: {
+                    attributes: []
+                },
+                include: [{
+                    model: Pseudonym,
+                    attributes: ['pseudonym']
+
+                }]
+            }, {
+                model: Genre,
+                through: {
+                    attributes: []
+                },
+            }]
+        })
         res.json(book);
     } catch(err) {
         res.sendStatus(500);

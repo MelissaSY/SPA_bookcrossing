@@ -29,7 +29,6 @@ const verifyRefreshToken = async (req, res, next) => {
         }
         const decoded = jwt.verify(refreshToken, JWT_REFRESH);
         req.user = decoded;
-
         next();
     } catch (err) {
         return res.sendStatus(401)

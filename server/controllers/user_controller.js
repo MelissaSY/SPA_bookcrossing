@@ -1,12 +1,14 @@
 'use strict';
 
-const user_list = require('../entities/user/user_list');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const SALT = bcrypt.genSaltSync(Number(process.env.SALT));
 const JWT_REFRESH= process.env.REFRESH_TOKEN_KEY;
 const helper = require('../helper/authentication')
+const {User, UserBook} = require('../models/User');
+const {Wishlist} = require('../models/Wishlist')
+const { Book } = require('../models/Book')
 
 const logIn = async (req, res) => {
     let parameter = ''
@@ -19,7 +21,11 @@ const logIn = async (req, res) => {
         return;
     }
     try {
-        const user = await user_list.searchUser(parameter, req.body[parameter]);
+        const user = await User.findOne({
+            where: {
+                [parameter]: req.body[parameter]
+            }
+        });
         if(!user) {
             res.sendStatus(404);
             return;
@@ -28,7 +34,7 @@ const logIn = async (req, res) => {
                 let refreshToken = await helper.generateRefreshToken(user.id);
                 let accessToken = await helper.generateAccessToken(user.id);
                 res.cookie("refreshToken", refreshToken, {maxAge: 2 * 60 * 60 * 1000, httpOnly: true})
-                res.json({"accessToken": accessToken});
+                res.json({"accessToken": accessToken, "id":user.id, "email":user.email, "login":user.login});
                 return;
             }
         }
@@ -40,31 +46,34 @@ const logIn = async (req, res) => {
     }
 } 
 
-
 const signUp = async (req, res) => {
     const {login,password:plainTextPassword, email}=req.body;
     const password = await bcrypt.hash(plainTextPassword, SALT);
     try {
-        const user = await user_list.addUser(login, password, email);
+        await User.sync();
+        await UserBook.sync();
+        await Wishlist.sync();
+        const user = await User.create({login: login, password:password, email:email});
+        
         let refreshToken = await helper.generateRefreshToken(user.id);
         let accessToken = await helper.generateAccessToken(user.id);
         res.cookie("refreshToken", refreshToken, {maxAge: 2 * 60 * 60 * 1000, httpOnly: true})
-        res.json({"accessToken": accessToken});
+        res.json({"accessToken": accessToken, "id":user.id, "email":user.email, "login":user.login});
         return;
     } catch (err) {
-        return res.sendStatus(500);
+        return res.sendStatus(409);
     }
 }
 
-
 const getAllUsers = (req, res) => {
     try {
-        user_list.getAllUsers()
+        User.findAll()
+        // user_list.getAllUsers()
         .then((users) => {
             res.json(users);
         })
     } catch (err) {
-        res.sendStatus(500);
+        res.sendStatus(404);
     }
 }
 
@@ -72,12 +81,13 @@ const deleteUser = (req, res) => { }
 
 const updateUser = (req, res) => { }
 
-const getUser = (req, res) => { 
+const getUser = async (req, res) => { 
     try {
-        let user = user_list.searchUser('id', parseInt(req.params.id));
+        const user = await User.findByPk(parseInt(req.params.id));
         res.json(user);
     } catch (err) {
-        res.sendStatus(500);
+        console.log(err);
+        res.sendStatus(404);
     }
 }
 
@@ -90,7 +100,7 @@ const refreshAccessToken = async (req, res) => {
             res.json({"accessToken": accessToken})
         }
     } catch (err) {
-        console.log(err);
+        res.sendStatus(401);
     }
 }
 
@@ -105,16 +115,114 @@ const logOut = (req, res) => {
     } catch(err) {
         return res.sendStatus(401);
     }
-    return res.redirect('/api');
+    return res.sendStatus(200);
+}
+const addUserBook = async (req, res) => {
+    if(req.params.param === 'wishlist') {
+        await UserBook.create({
+            UserId: req.user.id,
+            BookId: req.body.id,
+            ListType: 0
+        })
+    }
+
+    res.json(req.body)
+}
+
+const getUserBooks = async (req, res) => {
+    await User.sync();
+    await Book.sync();
+    await UserBook.sync();
+    try {
+        const { fulfilled } = req.query;
+        if(fulfilled != null) {
+            const userBooks = await User.scope({method : ['fulfilled', fulfilled === 'true']
+            }).findByPk(parseInt(req.params.id));
+            return res.json(userBooks);
+        }
+        const userBooks = await User.scope([
+            req.params.param
+        ]).findByPk(parseInt(req.params.id));
+        return res.json(userBooks);
+    } catch(err) {
+        console.log(err);
+        return res.sendStatus(404);
+    }
+}
+
+const getUserBook = async (req, res) => {
+    await User.sync();
+    await Book.sync();
+    await UserBook.sync();
+    try {
+        const userBooks = await User.scope({ method: [
+            req.params.param+'_bookId', req.params.bookId
+        ]}).findByPk(parseInt(req.params.id));
+        return res.json(userBooks.UserBooks[0]);
+    } catch(err) {
+        return res.sendStatus(404);
+    }
+}
+
+const deleteUserBook = async (req, res) => {
+    await User.sync();
+    await Book.sync();
+    await UserBook.sync();
+    if(parseInt(req.params.id) !== req.user.id) {
+        return res.sendStatus(400);
+    }
+    let type = 0;
+    switch(req.params.param) {
+        case 'wishlist':
+            type = 0
+            break;
+        default:
+            break;
+    }
+    await UserBook.destroy({
+        where: {
+            UserId: req.user.id,
+            BookId: parseInt(req.params.book),
+            ListType: type
+        }
+    })
+    return res.json(req.body);
+}
+
+const updateUserBook = async (req, res) => {
+    await User.sync();
+    await Book.sync();
+    await UserBook.sync();
+    if(parseInt(req.params.id) !== req.user.id) {
+        return res.sendStatus(400);
+    }
+    const bookId = parseInt(req.body.id);
+    const fulfilled = req.body.wishlist.fulfilled;
+
+    if(req.params.param === 'wishlist') {
+        const userbook_id = await UserBook.findOne({
+            attributes: ['id'],
+            where: {
+                BookId: bookId,
+                UserId: req.user.id 
+            }
+        })
+        await Wishlist.update({
+            fulfilled: fulfilled,
+        }, {
+            where : {
+                UserBookId: userbook_id.dataValues.id,
+            },
+        })
+        return res.json(req.body);
+    } else {
+        return res.sendStatus(400);
+    }
 }
 
 module.exports = {
     refreshAccessToken,
-    signUp, 
-    logIn,
-    logOut,
-    getAllUsers,
-    deleteUser,
-    updateUser,
-    getUser,
+    signUp, logIn, logOut,
+    getAllUsers, deleteUser, updateUser, getUser,
+    addUserBook, getUserBooks, deleteUserBook, updateUserBook, getUserBook
 }

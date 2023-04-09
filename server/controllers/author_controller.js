@@ -1,53 +1,114 @@
 'use strict';
 
-const author_list = require('../entities/author/author_list');
+const {Author, Pseudonym} = require('../models/Author');
 
-const addAuthor = (req, res) => {
-    author_list.addAuthor(
-        req.body.pseudonyms,
-         req.body.name,
-          req.body.surname,
-           req.body.patronymic
-        );
+const addAuthor = async (req, res) => {
+    await Author.sync();
+    await Pseudonym.sync();
+    const author = await Author.create({
+        name: req.body.name,
+        surname: req.body.surname,
+        patronymic: req.body.patronymic
+    })
+    req.body.pseudonyms.forEach(async element => {
+        await Pseudonym.create({
+            authorId: author.id,
+            pseudonym: element,
+        })
+    });
     res.json(req.body);
 };
 
-const getAllAuthors = (req, res) => {
+const getAllAuthors = async (req, res) => {
     try {
-        author_list.getAllAuthors()
-        .then((authors) => {
-            res.json(authors);
-        })
+        let authors = await Author.findAll();
+        let authorlist = [];
+        for(let element of authors) {
+            let pseudonyms = await Pseudonym.findAll({
+                attributes: ['pseudonym'],
+                where: {
+                    authorId: parseInt(element.id)
+                }
+            });
+            let formPseudonyms = [];
+            for(let pseudonym of pseudonyms) {
+                formPseudonyms.push(pseudonym['pseudonym']);
+            }
+            let formAuthor = element;
+            formAuthor.dataValues.pseudonyms = formPseudonyms;
+            authorlist.push(
+                formAuthor
+            )
+        }
+        res.json(authorlist);
     } catch (err) {
+        console.log(err);
         res.sendStatus(500);
     }
 };
 
-const deleteAuthor = (req, res) => {
+const deleteAuthor = async (req, res) => {
     try {
-        author_list.deleteAuthor(parseInt(req.params.id));
+        await Author.destroy({
+            where: {
+                id: parseInt(req.params.id),
+            }
+        });
         res.json(req.body);
     } catch (err) {
         res.sendStatus(500);
     }
 };
 
-const updateAuthor = (req, res) => {
+const getAuthor = async (req, res) => {
     try {
-        author_list.updateAuthor(parseInt(req.params.id), req.body);
-        res.json(req.body);
-    } catch(err) {
-        res.sendStatus(500);
-    }
-}
+        let author = await Author.findByPk(parseInt(req.params.id));
 
-const getAuthor = (req, res) => {
-    try { 
-        let author = author_list.searchAuthor('id', parseInt(req.params.id));
-        res.json(author);
+        let pseudonyms = await Pseudonym.findAll({
+            attributes: ['pseudonym'],
+            where: {
+                authorId: parseInt(req.params.id)
+            }
+        });
+        let formPseudonyms = [];
+        for(let pseudonym of pseudonyms) {
+            formPseudonyms.push(pseudonym['pseudonym']);
+        }
+        let formAuthor = author;
+        formAuthor.dataValues.pseudonyms = formPseudonyms;
+
+        res.json(formAuthor);
     } catch(err) {
         res.sendStatus(500);
     }   
+}
+
+const updateAuthor = async (req, res) => {
+    try {
+        await Author.update({
+            name: req.body.name,
+            surname: req.body.surname,
+            patronymic: req.body.patronymic
+        }, {
+            where: {
+                id: parseInt(req.params.id)
+            }
+        })
+        await Pseudonym.destroy({
+            where: {
+                authorId: parseInt(req.params.id)
+            }
+        })
+        req.body.pseudonyms.forEach(async element => {
+            await Pseudonym.create({
+                authorId: parseInt(req.params.id),
+                pseudonym: element,
+            })
+        });
+        res.json(req.body);
+    } catch(err) {
+        res.sendStatus(500);
+    }
 }
 
 module.exports = {

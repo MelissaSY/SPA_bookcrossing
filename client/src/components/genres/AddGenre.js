@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import axios from 'axios'
+import axiosPrivate from '../../api/axios';
 import { Link, useNavigate } from 'react-router-dom';
 
 function AddGenre() {
@@ -8,7 +8,7 @@ function AddGenre() {
     
     const handleAdd = (e) => {
         e.preventDefault();
-        axios.post('/genres', {
+        axiosPrivate.post('/genres', {
             name: name,
         })
         .then((res) => {

@@ -17,7 +17,7 @@ function IsbnInputComponent({setIsbn, isbn}) {
     }
 
     return (
-        <input type='text' placeholder='ISBN-13' value={isbn} onChange={handleIsbn}/>       
+        <input type='text' placeholder='ISBN-13' value={isbn || ''} onChange={handleIsbn}/>       
     )
 
 }

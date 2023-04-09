@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
+import axiosPrivate from '../../api/axios'
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 function EditAuthor() {
     const  authorsId = useParams()['id']; 
@@ -13,7 +15,7 @@ function EditAuthor() {
     const navigate = useNavigate();
 
     useEffect(()=>{
-        axios.get("/authors/"+authorsId)
+        axiosPrivate.get("/authors/"+authorsId)
         .then((res)=>{
             setPseudonyms(res.data.pseudonyms);
             setName(res.data.name);
@@ -29,7 +31,7 @@ function EditAuthor() {
 
     const handleEdit = (e) => {
         e.preventDefault();
-        axios.put(`/authors/${id}`, {
+        axiosPrivate.put(`/authors/${id}`, {
             id: id,
             pseudonyms: pseudonyms,
             name: name,
@@ -64,9 +66,11 @@ function EditAuthor() {
                 <input type='button' value='Add Pseudonym'className='edit_element' onClick={addPseudonym}/>
                 <div className='author_pseudonyms'>{
                 pseudonyms.map( pseudonym =>
-                    <div className='edit_author_pseudonym'>
+                    <div className='edit_author_pseudonym' key={pseudonym}>
                         { pseudonym }
-                        <input type='button' className='edit_element' value='Remove' onClick={() => removePseudonym(pseudonym)}/> 
+                        <button className='edit_icon' value='Remove' onClick={() => removePseudonym(pseudonym)}>
+                            <FontAwesomeIcon icon={faXmark} className='large-font'/>    
+                        </button> 
                     </div>
                 )}
                 </div>

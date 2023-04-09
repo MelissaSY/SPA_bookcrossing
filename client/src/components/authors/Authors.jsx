@@ -1,12 +1,17 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Header from '../header/Header';
-import axios from 'axios'
-import { Link } from 'react-router-dom';
+import  axiosPrivate from '../../api/axios'
+import { Link, useNavigate } from 'react-router-dom';
+import AuthContext from '../../contexts/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 function Authors() {
     const [authors, setAuthors] = useState([]);
+    const {auth} = useContext(AuthContext)
+    const navigate = useNavigate();
     useEffect(() => {
-        axios.get('/authors')
+        axiosPrivate.get('/authors')
         .then((res)=>{
             setAuthors(res.data)
         })
@@ -17,13 +22,19 @@ function Authors() {
     }, []);
 
 
-    const deleteAuthor=(id)=> {
-        axios.delete(`authors/${id}`);
-        setAuthors(
-            authors.filter((author) => {
-              return author.id !== id;  
-            })
-        );
+    const deleteAuthor=async (id)=> {
+        try {
+            await axiosPrivate.delete(`authors/${id}`);
+            setAuthors(
+                authors.filter((author) => {
+                  return author.id !== id;  
+                })
+            );
+        } catch(err) {
+            if(err === 'Unauthorized') {
+                navigate('/login');
+            }
+        }
     }
 
     return (
@@ -31,9 +42,18 @@ function Authors() {
             <Header/>
             <div className="content">
             <ul className="library_list">
-                <li className="author_element no-padding no-border">
-                    <Link to='add' className='add_element'>Add author</Link>
-                </li>
+                {
+                    auth.id ? 
+                    <>
+                    <li className="author_element no-padding no-border" key={-1}>
+                        <Link to='add' className='add_element'>
+                            Add author
+                        </Link>
+                    </li>
+                    </>
+                    :
+                    <></>
+                }
                 {
                     authors.map((author) => {
                     return (
@@ -44,10 +64,21 @@ function Authors() {
                                 <div className='string-enum'>
                                     <span>{ author.pseudonyms.join(', ') } </span>
                                 </div>
-                                <div className='delete_edit'>
-                                    <button className='edit_element' onClick={() => deleteAuthor(author.id)}>Delete</button>
-                                    <Link to={`edit/${author.id}`} className='edit_element'>Edit</Link>                
-                                </div>
+                                {
+                                    auth.id ? 
+                                    <>
+                                        <div className='edit_icons'>
+                                            <Link to={`edit/${author.id}`} className='edit_icon'>
+                                                <FontAwesomeIcon icon={faPen } className='large-font'/>
+                                            </Link>      
+                                            <button className='edit_icon' onClick={() => deleteAuthor(author.id)}>
+                                                <FontAwesomeIcon icon={faTrashCan} className='large-font'/>
+                                            </button>          
+                                        </div>
+                                    </>
+                                    :
+                                    <></>
+                                }
                             </div>
                         </li>
                     );

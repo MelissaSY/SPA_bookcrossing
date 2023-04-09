@@ -30,6 +30,9 @@ h1, h2, h3 {
 h1 {
     font-size: 24px;
 }
+.book_element {
+    text-align: center;
+}
 
 header {
     min-height: 70px;
@@ -103,7 +106,13 @@ ul {
 
 .sign-login {
     background: #E78888;
-    color: #861111;
+    color: #FFF1F1;
+    text-decoration: #FFF1F1;
+    border-radius: 20% 0% 20%;
+}
+.sign-login:hover {
+    background-color:#972222;
+    color: #FFF1F1;
     border-radius: 20% 0% 20%;
 }
 
@@ -140,7 +149,9 @@ a {
     display: block;
 }
 
-.edit_element, .edit_form input[type='text'] {
+.edit_element, 
+.edit_form input[type='text'],
+.edit_form input[type='password'] {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
@@ -173,7 +184,7 @@ a {
 .author_element_info {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-evenly;
     width: 100%;
     height: 100%;
 }
@@ -189,7 +200,7 @@ a {
 }
 
 .genre_element {
-    width: 15em;
+    min-width: 15em;
     height: 150px;
 }
 
@@ -218,10 +229,12 @@ a {
     margin-bottom: 30px;
     display: flex;
     flex-direction: column;
+    justify-content: space-evenly;
+    
 }
 
 .book-list-image {
-    height: 300px;
+    height: 240px;
     width: 100%;
     align-items: center;
     justify-content: center;
@@ -270,18 +283,21 @@ input[type=file]:hover,
 
 input[type=text], 
 input[type=search], 
+input[type=password], 
 select {
     border: 0;
 }
 
 input[type=text],
 input[type=search], 
+input[type=password], 
 input[type=submit], 
 select, button, 
 .input_image_label, 
 .edit_element,
 .add_element  {
     padding: 10px;
+    transition-duration: 0.2s;
 }
 input[type=search] {
     width: 40%;
@@ -357,7 +373,9 @@ select {
 .author_edit input,
 .author_edit button,
 .edit_element,
-.edit_form input[type='text'] {
+.edit_form input[type='text'],
+.edit_form 
+input[type=password] {
     margin: 10px;
     width: 50%;
 }
@@ -446,3 +464,93 @@ select {
     border: 0;
 }
 
+.empty {
+    visibility: hidden;
+    margin: 0;
+    padding: 0%;
+    height: 0;
+}
+
+.error {
+    padding: 20px;
+    text-align: center;
+    height: 100%;
+    width: 50%;
+    border-radius: 10px;
+    background-color: #E78888;
+    color: #FFF1F1;
+}
+
+.not-active {
+    border-color: #E78888;
+    background-color: #E78888;
+    color: #FFF1F1;
+}
+
+*:disabled {
+    border-color: #E78888;
+    background-color: #E78888;
+    color: #FFF1F1;
+}
+*:disabled:hover {
+    border-color: #E78888;
+    background-color: #E78888;
+    color: #FFF1F1;
+    cursor:auto;
+}
+
+.edit_form .search-elements {
+    display: flex;
+    width: 50%;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+}
+
+button.edit_element {
+    display: block;
+}
+
+.edit_icon {
+    background-color: transparent;
+    color: #972222;
+    border: none;
+    transition-duration: 0.2s;
+}
+
+.edit_icon:hover {
+    color: #E78888;
+    background-color: transparent;
+}
+
+.large-font {
+    font-size: large;
+}
+
+.edit_icons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.one_line_elipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.margins {
+    margin: 1em;
+}

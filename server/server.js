@@ -9,7 +9,6 @@ const places = require('./routes/places')
 const genres = require('./routes/genres')
 const users = require('./routes/signup_login')
 var cookieParser = require('cookie-parser');
-
 const uploader = require('./middleware/upload_image_middleware');
 require('dotenv').config()
 

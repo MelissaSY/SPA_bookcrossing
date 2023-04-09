@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
+import axiosPrivate from '../../api/axios';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 function EditGenre() {
@@ -9,7 +9,7 @@ function EditGenre() {
     const navigate = useNavigate();
 
     useEffect(()=>{
-        axios.get("/genres/"+genreId)
+        axiosPrivate.get("/genres/"+genreId)
         .then((res)=>{
             setName(res.data.name);
             setId(res.data.id);
@@ -22,7 +22,7 @@ function EditGenre() {
 
     const handleEdit = (e) => {
         e.preventDefault();
-        axios.put(`/genres/${id}`, {
+        axiosPrivate.put(`/genres/${id}`, {
             id: id,
             name: name,
         })
