@@ -1,10 +1,9 @@
 'use strict';
+const {Genre} = require('../models/Genre');
 
-const genre_list = require('../entities/genre/genre_list');
-
-const addGenre = (req, res) => {
+const addGenre = async (req, res) => {
     try {
-        genre_list.addToList(req.body.name);
+        await Genre.create({name: req.body.name})
         res.json(req.body);
     } catch (err) {
         res.sendStatus(500);
@@ -12,38 +11,46 @@ const addGenre = (req, res) => {
 };
 
 const getAllGenres = async (req, res) => {
-    try {
-        genre_list.getAllGenres()
-        .then((genre) => {
-            res.json(genre);
-        })
-
-    } catch(err) {
-        res.sendStatus(500);
-    }
+    await Genre.findAll()
+    .then((allGenre)=> {
+        res.json(allGenre);
+    })
+    .catch((err)=>{
+        res.sendStatus(404);
+    })
 };
 
-const deleteGenre = (req, res) => {
+const deleteGenre = async (req, res) => {
     try {
-        genre_list.deleteGenre(parseInt(req.params.id));
+        await Genre.destroy({
+            where : {
+                id: parseInt(req.params.id)
+            }
+        });
         res.json(req.body);
     } catch(err) {
-        res.sendStatus(500);
+        res.sendStatus(204);
     }
 };
 
-const updateGenre = (req, res) => {
+const updateGenre = async (req, res) => {
     try {
-        genre_list.updateGenre(parseInt(req.params.id), req.body);
+        await Genre.update({
+            name: req.body.name
+        }, {
+            where: {
+                id: parseInt(req.params.id)
+            }
+        });
         res.json(req.body);
     } catch(err) {
         res.sendStatus(500);
     }
 }
 
-const getGenre = (req, res) => {
+const getGenre = async (req, res) => {
     try {
-        let genre = genre_list.searchGenre('id', parseInt(req.params.id));
+        let genre = await Genre.findByPk(parseInt(req.params.id));
         res.json(genre);
     } catch(err) {
         res.sendStatus(500);

@@ -57,6 +57,17 @@ const addAuthor = async (author) => {
     }
 };
 
+const addUser = async (user) => {
+    let sql =`INSERT INTO users(id_user, login, hash_password, email)
+     VALUES (${user.id}, '${user.login}', '${user.password}', '${user.email}')`;
+    try {
+        await pool.execute(sql);
+       return;
+    } catch(err) {
+        throw err;
+    }
+}
+
 const deleteBook = async (id)=> {
     let sql =`DELETE FROM books WHERE id = ${id}`;
     try {
@@ -93,7 +104,6 @@ const deletePseudonym = async (id, pseudonym)=> {
         throw err;
     }
 };
-
 
 const editBook= async (book)=>{
     let sql =`UPDATE books SET title = "${book.title}", isbn = '${book.isbn}', annotation = '${book.annotation}',
@@ -209,12 +219,21 @@ const getAllPseudonyms = async () => {
     }
 } 
 
+const getAllUsers = async () => {
+    let sql = `SELECT * FROM users`;
+    try {
+        return await pool.execute(sql)
+    } catch(err) {
+        throw err;
+    }
+}
+
 module.exports = {
-    addBook, addGenre, addAuthor,
-    getAllBooks, getAllGenre, getAllAuthors, getAllPseudonyms,
-    getBookGenre, getBookAuthor,
-    editGenre, editBook, editAuthor,
-    deleteBook, deleteGenre, deleteAuthor,
-    deletePseudonym,
+    // addBook, addGenre, addAuthor, addUser,
+    // getAllBooks, getAllGenre, getAllAuthors, getAllPseudonyms, getAllUsers,
+    // getBookGenre, getBookAuthor,
+    // editGenre, editBook, editAuthor,
+    // deleteBook, deleteGenre, deleteAuthor,
+    // deletePseudonym,
 };
 

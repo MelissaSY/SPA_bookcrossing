@@ -1,12 +1,17 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import Header from '../header/Header';
-import axios from 'axios'
-import { Link } from 'react-router-dom';
+import axiosPrivate from '../../api/axios';
+import { Link, NavLink } from 'react-router-dom';
+import AuthContext from '../../contexts/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+
 
 function Books() {
     const [books, setBooks] = useState([]);
+    const {auth, setAuth} = useContext(AuthContext)
     useEffect(() => {
-        axios.get('/books')
+        axiosPrivate.get('/books')
         .then((res)=>{
             setBooks(res.data)
         })
@@ -18,7 +23,7 @@ function Books() {
 
 
     const deleteBook=(id)=> {
-        axios.delete(`books/${id}`);
+        axiosPrivate.delete(`books/${id}`);
         setBooks(
             books.filter((book) => {
               return book.id !== id;  
@@ -32,24 +37,34 @@ function Books() {
             <div className="content">
                 
             <ul className="library_list">
-                <li className="book_element no-padding no-border">
-                    <Link to='add' className='add_element'>Add book</Link>
-                </li>
+                {
+                    auth.id ? 
+                    <li className="book_element no-padding no-border">
+                        <Link to='add' className='add_element'>Add book</Link>
+                    </li>
+                    : 
+                    <></>
+                }
+               
                 {
                 books.map((book) => {
-                    
-                    let image = <></>;
-                    if(book.hasimage) {
-                        let path = `/images/${book.filepath}`;
+                    let image = <p>No image</p>;
+                    if(book.hasCover) {
+                        let path = `/images/${book.coverPath}`;
                         image = <img src={path}/>
                     }
                     return (
                         <li className="book_element" key={book.id}>
                             <div className='book-list-image'>{image}</div>
-                            <div><h1>{book.title}</h1></div>
-                            <div className='delete_edit'>
-                                <button className='edit_element' onClick={() => deleteBook(book.id)}>Delete</button>
-                                <Link to={`edit/${book.id}`} className='edit_element'>Edit</Link>                
+                            <div><Link to={`${book.id}`}><h1 className='one_line_elipsis'>{book.title}</h1></Link>
+                            {
+                                auth.id ? 
+                                <div className='edit_icons'>
+                                   <Link to={`edit/${book.id}`} className='edit_icon'><FontAwesomeIcon icon={faPen} className='large-font'/></Link>                
+                                   <button onClick={() => deleteBook(book.id)} className='edit_icon'><FontAwesomeIcon icon={faTrashCan} className='large-font'/></button>
+                                </div> :
+                                <></>
+                            }
                             </div>
                         </li>
                     );

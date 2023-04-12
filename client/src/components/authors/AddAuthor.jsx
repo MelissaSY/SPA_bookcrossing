@@ -1,6 +1,8 @@
 import React, {useState} from 'react'
-import axios from 'axios'
+import axiosPrivate from '../../api/axios'
 import { Link, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 function AddAuthor() {
     const [pseudonyms, setPseudonyms] = useState([]);
@@ -11,7 +13,7 @@ function AddAuthor() {
     const navigate = useNavigate();
     const handleAdd = (e) => {
         e.preventDefault();
-        axios.post('/authors', {
+        axiosPrivate.post('/authors', {
             pseudonyms: pseudonyms,
             name: name,
             surname: surname,
@@ -43,9 +45,11 @@ function AddAuthor() {
                 <input type='text' placeholder='Pseudonym' value={newPseudonym} onChange={(e) => setNewPseudonym(e.target.value)}/>
                 <input type='button' value='Add Pseudonym'className='edit_element' onClick={addPseudonym}/>
                 <div className='author_pseudonyms'>{pseudonyms.map( pseudonym =>
-                    <div className='edit_author_pseudonym'>
+                    <div className='edit_author_pseudonym' key={pseudonym}>
                         { pseudonym }
-                        <input type='button' className='edit_element' value='Remove' onClick={() => removePseudonym(pseudonym)}/> 
+                        <button className='edit_icon' value='Remove' onClick={() => removePseudonym(pseudonym)}>
+                            <FontAwesomeIcon icon={faXmark} className='large-font'/>    
+                        </button> 
                     </div>
                 )}</div>
             </form>

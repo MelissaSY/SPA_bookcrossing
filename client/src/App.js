@@ -17,8 +17,11 @@ import AddBook from './components/books/AddBook';
 import EditBook from './components/books/EditBook';
 import LogIn from './components/authentication/LogIn';
 import SignUp from './components/authentication/SignUp';
+import BookDetails from './components/books/BookDetails';
+
 
 function App() {
+  
   return (
     <>
         <BrowserRouter>
@@ -28,6 +31,7 @@ function App() {
             <Route path='/books' activeClassName='active' element={<Books/>}/>
             <Route path='/books/add' element={<AddBook/>}/>
             <Route path='/books/edit/:id' element={<EditBook/>}/>
+            <Route path='/books/:id' element={<BookDetails/>}/>
             
             <Route path='/touring_books' activeClassName='active' element={<TouringBooks/>}/>
             <Route path='/hunt' activeClassName='active' element={<Hunt/>}/>

@@ -4,17 +4,17 @@ function ListComponent({selectedItems, setSelected,
     showParameters, allItems, itemsName, filterFunction}) {
     const [searchItems, setSearchItems] = useState('');
     const [filteredItems, setFiltered] = useState([]);
-
+    
     useEffect(() => {
         filterItems(searchItems);
-        }, [allItems])
+    }, [selectedItems])
 
     const filterItems = (inputString) => {
         setSearchItems(inputString);
         let selected = selectedItems.filter(
             (item)=> {
                 return (filterFunction(item, inputString))
-                        })
+                })
         let otherItems = allItems.filter(
             (item) => { 
                 return (filterFunction(item, inputString) &&
@@ -42,7 +42,7 @@ function ListComponent({selectedItems, setSelected,
     return (
         <>
         <input type='text' placeholder={itemsName} value={searchItems} onChange={handleSearchItems}/>
-        <div className=''>
+        <div className='search-elements'>
         {
             filteredItems.map((item) => {
                 let className = 'border-bottom-pink';

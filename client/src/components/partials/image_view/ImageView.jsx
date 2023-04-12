@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import axiosPrivate from '../../../api/axios'
+import { useNavigate } from 'react-router-dom';
 
 function ImageUploadComponent ({filepath, setFilepath, 
     setHasImage, hasImage}) {
 
     const [image, setImage] = useState('');
     const [imagePreview, setImagePreview] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() =>{
         if(hasImage) {
@@ -14,7 +16,6 @@ function ImageUploadComponent ({filepath, setFilepath,
     }, [imagePreview, image, hasImage])
     
     const preview = (image) => {
-        console.log(image);
         if(image) {
             return (<img src={image}/>)
         }
@@ -29,7 +30,7 @@ function ImageUploadComponent ({filepath, setFilepath,
 
         formData.append('file', image);
 
-        axios.post('/books/upload_cover', formData, {
+        axiosPrivate.post('/books/upload_cover', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -40,7 +41,10 @@ function ImageUploadComponent ({filepath, setFilepath,
             setHasImage(true);
         })
         .catch(err => {
-
+            if(err === 'Unauthorized')
+            {
+                navigate('/login')
+            }
         })
     }
 
@@ -61,11 +65,11 @@ function ImageUploadComponent ({filepath, setFilepath,
 
     const handleDeleteImage = (e) => {
         e.preventDefault();
-        axios.delete('/books/images/'+filepath)
+        axiosPrivate.delete('/books/images/'+filepath)
         .then((res) => {
             setImage('');
             setImagePreview('');
-            hasImage(false);
+            setHasImage(false);
         })
         .catch((err) =>{
             console.log(err);
