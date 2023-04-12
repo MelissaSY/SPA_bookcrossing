@@ -554,3 +554,15 @@ button.edit_element {
 .margins {
     margin: 1em;
 }
+
+input:focus-visible {
+    outline-color:#972222;
+    outline-width: 1px;
+    outline-style: solid;
+}
+
+.invalid-input {
+    outline-color:#E78888;
+    outline-width: 1px;
+    outline-style: solid;
+}

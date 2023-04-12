@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import axiosPrivate from '../../../api/axios'
+import { useNavigate } from 'react-router-dom';
 
 function ImageUploadComponent ({filepath, setFilepath, 
     setHasImage, hasImage}) {
 
     const [image, setImage] = useState('');
     const [imagePreview, setImagePreview] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() =>{
         if(hasImage) {
@@ -39,7 +41,10 @@ function ImageUploadComponent ({filepath, setFilepath,
             setHasImage(true);
         })
         .catch(err => {
-
+            if(err === 'Unauthorized')
+            {
+                navigate('/login')
+            }
         })
     }
 

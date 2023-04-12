@@ -122,11 +122,11 @@ function WishlistComponent() {
                         {
                             book.Wishlist.fulfilled ?
                             <button className='edit_element' onClick={()=>handleFulfillWish(book.Book.id)}>
-                                Unmark <FontAwesomeIcon icon={faCheck}/>
+                                Fulfilled <FontAwesomeIcon icon={faCheck}/>
                                 </button>
                             :
                             <button className='edit_element' onClick={()=>handleFulfillWish(book.Book.id)}>
-                                Mark <FontAwesomeIcon icon={faStar}/>
+                                Unfulfilled <FontAwesomeIcon icon={faStar}/>
                                 </button>
                         }
                         <button className='edit_element' onClick={() => handleDeleteWish(book.Book.id)}>Delete</button>

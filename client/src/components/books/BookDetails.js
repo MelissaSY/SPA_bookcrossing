@@ -48,14 +48,13 @@ function BookDetails() {
             .then((res) => {
                 setInWishlist(res.data !== null)
                 setFulfilled(res.data.Wishlist.fulfilled)
+                setLoading(false);
             })
             .catch((err) => {
                 console.log(err);
-                
+                setLoading(false);
             })
         }
-        console.log(res.data);
-        setLoading(false);
     })
     .catch((err) => {
         console.log(err);
@@ -107,20 +106,16 @@ function BookDetails() {
         <div className='content'>
         {
             loading ? <p>loading</p> : 
-            <>
-            <h1>{title}</h1>
-            <div className='flex-row'>
-                <div className='flex-column margins'>
-                <div className='book-list-image'>
-                {
-                    hasImage ?
-                    <img src={'/images/' + filepath}/>
-                    :<></>
-                }
-                </div>
+            <div className='edit_container'>
+                <h1>{title}</h1>
+                    <div className='book-list-image'>
+                    {
+                        hasImage ?
+                        <img src={'/images/' + filepath}/>
+                        :<></>
+                    }
+                    </div>
                 <p>ISBN-13: {isbn}</p>
-                </div>
-                <div className='flex-column margins'>
                 <p>Authors: </p>
                 {
                     authors.length > 0 ?
@@ -157,7 +152,6 @@ function BookDetails() {
                     :
                     <p>No authors specified</p>
                 }
-                <div className='flex-row'>
                 {
                     inWishlist ?
                     fulfilled ?
@@ -180,9 +174,8 @@ function BookDetails() {
                     :
                     <></>
                 }
-                </div>
                 <Link to='/books' className='edit_element'>Back</Link>
-                </div>
+                
                 
                 {
                     annotation ?
@@ -191,7 +184,6 @@ function BookDetails() {
                     <></>
                 }
             </div>
-            </>
         }
         </div>
     );

@@ -116,6 +116,7 @@ function SignUp() {
                     aria-describedby='loginerror'
                     onFocus={() => setLoginFocus(true)}
                     onBlur={()=> setLoginFocus(false)}
+                    className={validLogin ? '': 'invalid-input'}
                     />
                 
                     <p id="loginerror" className={!loginFocus && login 
@@ -131,6 +132,7 @@ function SignUp() {
                     aria-describedby='emailerror'
                     onFocus={() => setEmailFocus(true)}
                     onBlur={()=> setEmailFocus(false)}
+                    className={validEmail || email === "" ? '': 'invalid-input'}
                     />
 
                     <p id="emailerror" className={!emailFocus && email 
@@ -141,10 +143,11 @@ function SignUp() {
                     <input type='password' placeholder='Password' required 
                     value={password} 
                     onChange={(e) => setPassword(e.target.value)}
-                    aria-invalid={validEmail ? "false" : "true"}
+                    aria-invalid={validPassword ? "false" : "true"}
                     aria-describedby='passworderror'
                     onFocus={() => setPasswordFocus(true)}
                     onBlur={()=> setPasswordFocus(false)}
+                    className={validPassword || password === "" ? '': 'invalid-input'}
                     />
 
                     <p id="passworderror" className={!passwordFocus && password 
@@ -156,10 +159,11 @@ function SignUp() {
                     <input type='password' placeholder='Repeat password' required 
                     value={matchPassword} 
                     onChange={(e) => setMatchPassword(e.target.value)}
-                    aria-invalid={validEmail ? "false" : "true"}
+                    aria-invalid={validMatch ? "false" : "true"}
                     aria-describedby='matchpassword'
                     onFocus={() => setMatchFocus(true)}
                     onBlur={()=> setMatchFocus(false)}
+                    className={validMatch ? '': 'invalid-input'}
                     />
 
                     <p id="matchpassword" className={matchPassword 
